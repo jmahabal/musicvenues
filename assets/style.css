@@ -1,0 +1,73 @@
+.place {
+	fill: black;
+	z-index: 1000;
+}
+
+.bound {
+  fill: #89cff0;
+}
+
+.roads {
+  stroke: #aaa;
+  stroke-opacity: 0.4;
+  fill: white;
+  z-index: 200;
+  fill-opacity: 0;
+}
+
+#container {
+	display: inline-block;
+	position: relative;
+}
+
+html, body{
+  font-family:"Baskerville"; font-weight: lighter;
+  font-size:16px;
+  color:#444;
+}
+
+a:link    {color:#000;}  /* unvisited link  */
+a:visited {color:#000;}  /* visited link    */
+a:hover   {color:#000;}  /* mouse over link */
+a:active  {color:#000;}
+
+#map {
+	height: 500px;
+	width: 550px;
+	margin-top: 30px;
+	float: left;
+	display: inline-block;
+	vertical-align: top;
+	position: relative;
+}
+
+#mypie {
+	position: relative;
+	display: inline-block;
+	vertical-align: top;
+	margin-top: 30px;
+}
+
+#worldmap {
+	position: absolute;
+	height: 250px;
+	margin-top: 385px;
+	margin-left: 560px;
+	width: 600px;
+}
+
+#textvenn {
+	position: absolute;
+	margin-top: 475px;
+	margin-left: 560px;
+	width: 600px;
+	text-align: center;
+}
+
+#nearbycities {
+	position: absolute;
+	margin-top: 510px;
+	margin-left: 560px;
+	width: 600px;
+	text-align: center;
+}

@@ -1,0 +1,37 @@
+things to add:
+
+lock piechart when venue is clicked (and unlock when clicked again)
+have reset buttons for piechart, flags
+for tooltips, change background (maybe? just make more legible)
+decide color ramps for genres, flags
+	whether to have one color (various versions of the color) for genres and countries
+		cool / warm colors maybe?
+	have it be a different color each for the pie chart
+add delay function for flags
+generate topojson of streets (using a django api)
+devise starting placement of colors (opening map should tell story)
+	perhaps highlight corridors/neighborhoods?
+try to eliminate hack-y try/catch functions in code
+	especially when adding countries: bolivarian republic of venezuela
+	add UN flag to countries that cannot be identified?
+somehow mark venues that have >50% artists from that city + surrounding cities
+contact songkick, echonest
+	get research api code possibly
+implement a zoom feature
+	even just a plus/minus that reloads the map with a different projection scale
+investigate way to cache all previous api calls
+	better way: get all past concerts of a venue
+
+done:
+
+changed font to Baskerville
+disabled segment pullout
+added currently highlighted data
+find some way to dynamically get nearby cities
+	songkick metroid, with lower limit 25% of len(venues_largest_city)? 
+
+other things:
+
+middlesex
+how should a person be
+postcards

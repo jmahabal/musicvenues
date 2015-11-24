@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="assets/phoca-flags.css" />
+<link rel="stylesheet" href="assets/colorbrewer.css" />
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="assets/d3pie.min.js"></script>
+<script src="assets/d3.tip.v0.6.3.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="assets/colorbrewer.js"></script>
+<script src="http://d3js.org/d3.geo.projection.v0.min.js" charset="utf-8"></script>
+
+</head>
+<body>
+<div id="container">
+	<div id="map"></div>
+	<div id="mypie"></div>
+	<div id="worldmap"></div>
+	<div id="textvenn"></div>
+	<div id="nearbycities"></div>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+
+// edit the following || echonestapi.py: city // metro_venues.py: metroid, metroname // apitest.html: var data, var citymap, projection
+
+var width = 550,
+    height = 500;
+
+var segmentClicked = false;
+
+var vennd = d3.select("#textvenn")
+	.attr("width", 300)
+    .attr("height", 50);
+
+var nearby = d3.select("#nearbycities")
+	.attr("width", 300)
+    .attr("height", 50);
+
+var flags = d3.select("#worldmap")
+	.attr("width", 300)
+    .attr("height", 300);
+
+var svg = d3.select("#map").append("svg")
+	.attr("float", "left")
+    .attr("width", width)
+    .attr("height", height);
+
+var projection = d3.geo.mercator()
+	.center([-122.27, 37.8])
+	.translate([width / 2, height / 2])
+	.scale(170000);
+
+var venueClicked = false;
+
+var path = d3.geo.path()
+	.projection(projection);
+
+var data = "json/venueoutput_oakland.json";
+var citymap = "json/oakstreets.json";
+var countries = "json/countries.json";
+
+var highlightedCountry;
+var highlightedGenre;
+
+var country_dict = new Array();
+
+$(function(){
+	queue()
+		.defer(d3.json, data)
+		.defer(d3.json, citymap)
+		.defer(d3.json, countries)
+	.await(dataDidLoad);
+});
+
+
+
+function dataDidLoad(error, data, citymap, countries) {
+
+	var cityMusicProfile = data[data.length - 1];
+
+	drawRoads(citymap);
+	drawOriginalPieChart(cityMusicProfile);
+	drawCityFlags(cityMusicProfile);
+	generateNearbyCities(cityMusicProfile);
+	generateTextVenn(cityMusicProfile);
+
+	for (var i = countries.length - 1; i >= 0; i--) {
+		country_dict[countries[i].alpha2] = countries[i].name;
+	};
+	for (var i = 0; i < data.length - 1; i++) {
+		drawMusicVenues(cityMusicProfile, data[i], projection([parseFloat(data[i].data.longitude), parseFloat(data[i].data.latitude)]));
+	};
+};
+
+function generateTextVenn() {
+
+	if ((highlightedGenre !== undefined) && (highlightedCountry !== undefined)) {
+		vennd.text("Currently highlighted: "+highlightedGenre+" + "+highlightedCountry);
+	}
+	else if (highlightedGenre !== undefined) {
+		vennd.text("Currently highlighted: "+highlightedGenre);
+	}
+	else if (highlightedCountry !== undefined) {
+		vennd.text("Currently highlighted: "+highlightedCountry);
+	};
+
+};
+
+function generateNearbyCities(cityd) {
+
+	// nearby.append("text")
+	// 	.text("Nearby cities || ");
+
+	var temp_cities = cityd.nearbycities.slice(1, cityd.nearbycities.length - 1).split(', ');
+
+	for (var i = temp_cities.length - 1; i >= 0; i--) {
+		temp_city = temp_cities[i].slice(1, temp_cities[i].length - 1).replace('_', ' ');
+		nearby.append("a")
+			.text(toTitleCase(temp_city))
+			.attr("href", "https://www.youarehere.cc/" + temp_cities[i].slice(1, temp_cities[i].length - 1));
+		if (i > 0) {
+		nearby.append("text")
+			.text(" || ");
+		};
+	};
+}
+
+function drawFlags(countrydata) {
+
+	d3.selectAll(".flag")
+		.remove();
+
+	var numberCountries = (countrydata.data.countries).split(' ').length - 1;
+	var venue_country_list = (countrydata.data.countries).split(" ");
+
+	if (numberCountries > 0) {
+		var i = 0;
+		while (i < numberCountries) {
+	        flags.append("div")
+	     		.attr("class", function(d) { return "flag "+venue_country_list[i].slice(10,12); })
+	     		.style("width", "30px")
+	     		.style("height", "20px")
+	     		.style("margin", "2px")
+	     		.style("display", "inline-block");
+	     	i++;
+		};
+	};
+};
+
+function drawCityFlags(countrydata) {
+
+	d3.selectAll(".flag")
+		.remove();
+
+	var numberCountries = (countrydata.countries).split(",").length;
+	var country_list = countrydata.countries.replace("]", "").replace("[", "").split(", ");
+
+	var countryColor = []
+
+
+	if (numberCountries > 1) {
+
+		var i = 0;
+		var two_letters;
+		var tip = d3.tip().attr('class', 'd3-tip').offset([0, 15]);;
+
+		while (i < numberCountries) {
+			two_letters = country_list[i].slice(2,4).toLowerCase().toString();
+			countryColor.push(two_letters);
+			flags.append("svg")
+				.call(tip)
+	     		.attr("class", function(d) { return "flag "+two_letters; })
+	     		.style("width", "30px")
+	     		.style("height", "20px")
+	     		.style("margin", "2px")
+	     		.style("display", "inline-block")
+				.on("mouseover", function(d){
+					var tipText = this.className.animVal.toString().slice(5,8);
+					tip.html(country_dict[tipText.toUpperCase()]);
+					tip.show();
+					d3.selectAll(".countries")
+	                    .attr("opacity", 0);
+	                d3.selectAll(".countries_"+stripSpecialCharactersAndSpace(tipText))
+	                    .attr("opacity", 0.8)
+	                    .attr("fill", function(d) { return o(stripSpecialCharactersAndSpace(tipText)); })
+	                    .classed("countries", true);
+	                highlightedCountry = country_dict[tipText.toUpperCase()];
+	                generateTextVenn();
+				})
+				.on("mouseout",function(){
+					tip.hide(tip);
+				});
+	     	i++;
+		};
+	};
+
+	var o = d3.scale.ordinal()
+	.domain(countryColor)
+	.range(colorbrewer.Blues[7]);
+};
+
+function drawRoads(roads) {
+	svg.append("path")
+      .datum(topojson.feature(roads, roads.objects.oak_streets))
+      .attr("d", path)
+      .attr("class", "roads");
+};
+
+function drawMusicVenues(city, venues, currentCoordinates) {
+	svg.append("circle")
+      .attr("cx", currentCoordinates[0])
+	  .attr("cy", currentCoordinates[1])
+	  .attr("r", "3px")
+      .attr("class", "place");
+
+	var mapTip = d3.tip()
+		.attr('class', 'map-tip')
+		.offset([-4, 0]);
+
+	// var toPieGenerate = drawOriginalPieChart(city);
+
+	var numberCountriesMain = venues.data.countries.split(' ').length;
+	var splittedCountries = venues.data.countries.split(' ');
+
+	if (numberCountriesMain > 1) {
+		var i = 0;
+		while (i < numberCountriesMain) {
+			svg.append("circle")
+			.attr("cx", currentCoordinates[0])
+			.attr("cy", currentCoordinates[1])
+			.attr("r", "10px")
+			.attr("class",function(d){
+				return splittedCountries[i];
+			})
+			.attr("opacity", 0);
+			i++;
+		};
+	};
+
+	svg.append("circle")
+		.attr("cx", currentCoordinates[0])
+		.attr("cy", currentCoordinates[1])
+		.attr("r", "10px")
+		.attr("class",function(d){
+			return stripSpecialCharactersAndSpace(venues.data.topgenre);
+		})
+		.attr("opacity", 0)
+		.on("mouseover", function(){
+		});
+
+	svg.call(mapTip);
+	svg.append("circle")
+		.attr("cx", currentCoordinates[0])
+		.attr("cy", currentCoordinates[1])
+		.attr("r", "10px")
+		.attr("class",function(d){
+			return "rollovers"+stripSpecialCharactersAndSpace(venues.venuename);
+		})
+		.attr("opacity", 0)
+		.on("mouseover", function(){
+			if (!venueClicked) {
+				highlightCurrentVenue(venues);
+				var tipText = venues.venuename;
+				mapTip.html(tipText);
+				mapTip.show();
+				drawFlags(venues);
+				drawPieCharts(venues);
+			};
+		})
+		.on("mouseout",function(){
+			if (!(venueClicked)) {
+				undoHighlight(venues);
+				mapTip.hide();
+				drawOriginalPieChart(city);
+				drawCityFlags(city);
+			};
+		})
+		.on("click", function(){
+			venueClicked = !venueClicked;
+		});
+};
+
+function highlightCurrentVenue(venue){
+	var venue_name = stripSpecialCharactersAndSpace(venue.venuename);
+	d3.selectAll(".rollovers"+venue_name)
+		.attr("opacity", .4);
+};
+
+function undoHighlight(venue){
+	var venue_name = stripSpecialCharactersAndSpace(venue.venuename);
+	d3.selectAll(".rollovers"+venue_name)
+		.attr("opacity",0);
+};
+
+function stripSpecialCharactersAndSpace(inputString){
+	var newString = inputString.replace(/[\.,-\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+	newString = newString.replace(/\s/g, '');
+	newString = newString.replace(/['"]+/g, '');
+	newString = newString.replace("@","");
+	return newString;
+};
+
+function drawOriginalPieChart(citydata) {
+
+	d3.select("#mypie").remove();
+
+	d3.select("body").append("div")
+		.attr("id", "mypie");
+
+	var pie = new d3pie("mypie", {
+		header: {
+			title: {
+				text: toTitleCase(citydata.cityname),
+				font: "Baskerville"
+			}
+		},
+		size: {
+		    pieInnerRadius: "55%",
+			canvasHeight: 350,
+			canvasWidth: 600,
+		},
+		data: { 
+			sortOrder: "value-asc",
+			smallSegmentGrouping: {
+				enabled: true,
+				value: 3,
+				valueType: "percentage",
+				label: "other genres"
+			},
+			content: citydata.labels
+		},
+		effects: {
+			pullOutSegmentOnClick: {
+				effect: "none"
+			}
+		},
+		labels: {
+			mainLabel: {
+				font: "Baskerville",
+				fontSize: 12
+			},
+			inner: {
+				hideWhenLessThanPercentage: 3.1
+			},
+			outer: {
+				pieDistance: 20
+			}
+		},
+		misc: {
+			canvasPadding: {
+				top: 5,
+				left: 5,
+				bottom: 5,
+				right: 5
+			}
+		},
+		callbacks: {
+			// onClickSegment: function(info){
+   //              // console.log(info)
+   //              d3.selectAll(".genres")
+   //                  .attr("opacity", 0);
+
+   //              if (pie.getOpenSegment() != null) {
+	  //               if (pie.getOpenSegment().data.label !== info.data.label) {
+		 //                d3.selectAll(".genres"+stripSpecialCharactersAndSpace(info.data.label))
+		 //                    .attr("opacity", 0.6)
+		 //                    .attr("fill", info.data.color)
+		 //                    .classed("genres", true);
+		                
+		   
+	  //               };
+	  //           } else {
+	  //           	d3.selectAll(".genres"+stripSpecialCharactersAndSpace(info.data.label))
+		 //                    .attr("opacity", 0.6)
+		 //                    .attr("fill", info.data.color)
+		 //                    .classed("genres", true);
+
+
+		 //                };
+		 //    },
+			onMouseoverSegment:	function(info){
+				// d3.selectAll(".genres"+stripSpecialCharactersAndSpace(info.data.label))
+				// 	.attr("opacity", 0.6)
+				// 	.attr("fill", info.data.color);
+
+
+
+				if (pie.getOpenSegment() != null) {
+		            } else {
+
+		            	d3.selectAll(".genres")
+                   			 .attr("opacity", 0);
+
+		            	d3.selectAll(".genres"+stripSpecialCharactersAndSpace(info.data.label))
+			                    .attr("opacity", 0.6)
+			                    .attr("fill", info.data.color)
+			                    .classed("genres", true);
+
+			            		highlightedGenre = toTitleCase(info.data.label);
+                					generateTextVenn();
+			                };
+
+			}
+			// onClickSegment: function(info) {
+			// 	d3.selectAll(".genres"+stripSpecialCharactersAndSpace(info.data.label))
+			// 		.classed("clicked", true)
+			// 		.attr("opacity", 0.4);
+			
+		}
+	});
+}
+
+
+
+function drawPieCharts(musicdata) {
+
+	d3.select("#mypie").remove();
+
+	d3.select("body").append("div")
+		.attr("id", "mypie");
+
+	var pie = new d3pie("mypie", {
+		header: {
+			title: {
+				text: musicdata.venuename,
+				font: "Baskerville"
+			}
+		},
+		size: {
+		    pieInnerRadius: "55%",
+			canvasHeight: 350,
+			canvasWidth: 600,
+		},
+		data: { 
+			sortOrder: "value-asc",
+			smallSegmentGrouping: {
+				enabled: true,
+				value: 3,
+				valueType: "percentage",
+				label: "other genres"
+			},
+			content: musicdata.labels
+			},
+		labels: {
+			mainLabel: {
+				font: "Baskerville",
+				fontSize: 12
+			},
+			inner: {
+				hideWhenLessThanPercentage: 3.1
+			},
+			outer: {
+				pieDistance: 20
+			}
+		},
+		misc: {
+			canvasPadding: {
+				top: 5,
+				left: 5,
+				bottom: 5,
+				right: 5
+			}
+		}
+	});
+};
+
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
+</script>
+</body>
+</html>
