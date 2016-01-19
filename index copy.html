@@ -1,89 +1,8 @@
 <!DOCTYPE html>
-<style>
-
-a:link    {
-	color:#000;
-	background: #ffdead;
-	text-decoration: none;
-	}  /* unvisited link  */
-a:visited {color:#000;}  /* visited link    */
-a:hover   {color:#000;}  /* mouse over link */
-a:active  {color:#000;}
-
-h1 {
-  font-weight: lighter;
-  font-size: 20px;
-  padding-bottom: 1em;
-  text-align: center;
-}
-
-.bottombreak {
-  padding: 1em;
-}
-
-p {
-  margin: 1em;
-  text-align: justify;
-}
-
-.container1 {
-  margin-left: 12%;
-  margin-right: 12%;
-  display: inline-block;
-}
-
-.container2 {
-  margin-left: 12%;
-  margin-right: 12%;
-  display: inline-block;
-}
-
-html, body {
-  font-family: "Baskerville"; 
-  font-size: 16px;
-  color: #444;
-  /*display: inline-block;*/
-  line-height: 1.35em;
-  text-align: center;
-}
-
-#container_right {
-  width: 50%;
-  display: block;
-  float: right;
-}
-
-#container_left {
-  width: 50%;
-  max-width: 50%;
-  display: block;
-  float: left;
-}
-
-.container {
-	margin-left: auto;
-	margin-right: auto;
-	/*display: inline-block;*/
-	width: 90%;
-	height: 500;
-}
-
-.title {
-	font-size: 1.75em;
-	text-align: center;
-	padding-bottom: .25em;
-	padding-top: 2em;
-	font-weight: 500;
-}
-
-img {
-	width: 100%;
-}
-
-</style>
 <html>
 <head>
 <meta charset="UTF-8">
+
 <link rel="stylesheet" href="assets/style.css" />
 <link rel="stylesheet" href="assets/phoca-flags.css" />
 <link rel="stylesheet" href="assets/colorbrewer.css" />
@@ -96,62 +15,15 @@ img {
 <script src="assets/colorbrewer.js"></script>
 <script src="http://d3js.org/d3.geo.projection.v0.min.js" charset="utf-8"></script>
 
-<!-- <link rel="stylesheet" href="static/timepoty/style.css" /> -->
-<!-- <script src="static/timepoty/d3.v3.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-<script src="static/timepoty/d3pie.min.js"></script>
-<script src="static/timepoty/d3.tip.v0.6.3.js"></script>
-<script src="http://d3js.org/queue.v1.min.js"></script> -->
-
 </head>
 <body>
-	<div class="container1"><div class="container2">
-	<div class="title">Music Venues by City</div>
-	<h1>(Work in Progress)</h1>
-	<hr><br>
-	<p>
-		This interactive project is currently a work in progress, started during my time at the MIT Media Lab for the <a href="http://youarehere.cc/#/">You Are Here project</a>. The lofty goal was to compare the live music scene of various cities: to see whether Nashville had a different character compared to somewhere like Seattle. At the moment there is still a lot of work to be done (more details below), but what I have so far is a basic framework for visualizing two factors: the genre of music that's played at each venue, and the nationality of the artists performing there. To create this map I used Python to grab data from the two APIs that I used: <a href="https://www.songkick.com">Songkick</a> and <a href="http://the.echonest.com/">Echonest</a>, and then I used d3.js to create the visualization. Look out for this project to be updated. 
-	</p><br>
-	</div></div>
-	<div class='container'>
-	<!-- <div id="container"> -->
-		<div id="container_left">
-			<div id="map"></div>
-		</div>
-		<div id="container_right">
-			<div id="container_right_pc"></div>
-			<div id="mypie"></div>
-			<div id="worldmap"></div>
-			<div id="textvenn"></div>
-			<div id="nearbycities"></div>
-		</div>
-  	</div>
-	<div class="container1">
-	<div class="container2">
-	<br>
-	<p>
-		Without providing the entire list of improvements to make, I'll highlight a few roadblocks. Firstly, the process for creating each map is manual, though I automated the process as much I could with my skills at that time. To generate the city-level maps I need to create an API that takes in a national-level geojson file and returns the bounded map. The other large automation problem is that I use the Songkick database which is unfortunately limited in some ways. Specifically, there isn't a good way to find all concerts in any particular city. 
-	</p>
-	<p>
-		A few other medium-sized problems that need to be fixed before publication: the nationalities are not representative, as I'm sure artists from non-English speaking countries are being ignored. There are two reasons why I think that this problem exists: unicode problems or the Songkick database itself is incomplete. One other problem is that pie charts make for poor tools to display data. While in this case I don't think it affects the end result too much, I'm searching for a better way of displaying the genres.
-	</p>
-	<p>
-		I encountered some interesting problems working on this and I'll briefly mention them right now, but I'll expound on them as the project finishes. APIs are very useful but provide an interesting challenge at times. For this project, I first needed a list of the concerts that happened in a given city. I knew that Songkick had this data (including historical data) before I started, but I didn't know that it would be difficult to get this data using their API. Scraping Songkick wouldn't be very nice. So the proxy that I am currently using is to grab the upcoming concerts in the city (and therefore the artists), and then build my dataset using only those artists. I use <a href="http://docs.python-requests.org/en/latest/">Requests</a> to help me reduce the number of API calls, because my rate limit is low, but before publishing I need to make sure I have all previous concerts.
-	</p>
-	<p>
-		Another problem was the issue of assigning genres to artists. Echonest is great, to the point where it even includes genres such as "<a href="https://en.wikipedia.org/wiki/Mathcore">mathcore</a>." Thankfully, Echonest also provides weights, so I was able to account for these extras. Before I did this what used to happen was that the resulting pie chart would be rendered useless, as the 'main' genres such as rock would be buried under noise. I thought grouping all of the smaller genres together into "other genres" would help but instead the sector ended up occupying too much space. My solution was to reduce the weights of the irrelevant genres to zero, resulting in the more understanbable pie chart before you.
-	</p>
-	<p>
-		Below is a screenshot of the San Francisco version of this same visualization. 
-	</p>
-	</div>
-	<img src="musicvenues_sf.png">
-	<div class="container2">
-	<p>
-		This interactive looks best on the screen I used to code it (Chrome + Yosemite + 13"). Please send all comments / questions / critiques / suggestions to jmahabal@berkeley.edu. Thanks for reading!
-	</p>
-    <div class="bottombreak"></div>
-    </div></div>
+<div id="container">
+	<div id="map"></div>
+	<div id="mypie"></div>
+	<div id="worldmap"></div>
+	<div id="textvenn"></div>
+	<div id="nearbycities"></div>
+</div>
 
 <script type="text/javascript" charset="utf-8">
 
@@ -167,19 +39,15 @@ var vennd = d3.select("#textvenn")
     .attr("height", 50);
 
 var nearby = d3.select("#nearbycities")
-	// .attr("text-align", "center")
 	.attr("width", 300)
     .attr("height", 50);
 
 var flags = d3.select("#worldmap")
-	// .attr("float", "right")
-	// .attr("max-width", "100px")
 	.attr("width", 300)
     .attr("height", 300);
 
 var svg = d3.select("#map").append("svg")
-	// .attr("float", "left")
-	.attr("text-align", "center")
+	.attr("float", "left")
     .attr("width", width)
     .attr("height", height);
 
@@ -209,6 +77,8 @@ $(function(){
 		.defer(d3.json, countries)
 	.await(dataDidLoad);
 });
+
+
 
 function dataDidLoad(error, data, citymap, countries) {
 
@@ -253,7 +123,7 @@ function generateNearbyCities(cityd) {
 		temp_city = temp_cities[i].slice(1, temp_cities[i].length - 1).replace('_', ' ');
 		nearby.append("a")
 			.text(toTitleCase(temp_city))
-			.attr("href", "https://www.mahabal.io/musicvenues/" + temp_cities[i].slice(1, temp_cities[i].length - 1));
+			.attr("href", "https://www.youarehere.cc/" + temp_cities[i].slice(1, temp_cities[i].length - 1));
 		if (i > 0) {
 		nearby.append("text")
 			.text(" || ");
@@ -318,8 +188,7 @@ function drawCityFlags(countrydata) {
 	                    .attr("opacity", 0);
 	                d3.selectAll(".countries_"+stripSpecialCharactersAndSpace(tipText))
 	                    .attr("opacity", 0.8)
-	                    .attr("fill", function() { var countryfill = "#2980b9"; return "#2980b9"; })
-	                    // .attr("fill", function(d) { return o(stripSpecialCharactersAndSpace(tipText)); })
+	                    .attr("fill", function(d) { return o(stripSpecialCharactersAndSpace(tipText)); })
 	                    .classed("countries", true);
 	                highlightedCountry = country_dict[tipText.toUpperCase()];
 	                generateTextVenn();
@@ -441,7 +310,7 @@ function drawOriginalPieChart(citydata) {
 
 	d3.select("#mypie").remove();
 
-	d3.select("#container_right_pc").append("div")
+	d3.select("body").append("div")
 		.attr("id", "mypie");
 
 	var pie = new d3pie("mypie", {
@@ -530,7 +399,7 @@ function drawOriginalPieChart(citydata) {
 
 		            	d3.selectAll(".genres"+stripSpecialCharactersAndSpace(info.data.label))
 			                    .attr("opacity", 0.6)
-			                    .attr("fill", function() {console.log(info.data.color); return info.data.color;})
+			                    .attr("fill", info.data.color)
 			                    .classed("genres", true);
 
 			            		highlightedGenre = toTitleCase(info.data.label);
@@ -553,7 +422,7 @@ function drawPieCharts(musicdata) {
 
 	d3.select("#mypie").remove();
 
-	d3.select("#container_right_pc").append("div")
+	d3.select("body").append("div")
 		.attr("id", "mypie");
 
 	var pie = new d3pie("mypie", {
@@ -606,6 +475,5 @@ function toTitleCase(str) {
 }
 
 </script>
-
 </body>
 </html>

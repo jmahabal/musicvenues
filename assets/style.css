@@ -15,59 +15,73 @@
   fill-opacity: 0;
 }
 
-#container {
-	display: inline-block;
-	position: relative;
-}
 
-html, body{
+/*html, body{
   font-family:"Baskerville"; font-weight: lighter;
   font-size:16px;
   color:#444;
-}
+}*/
 
-a:link    {color:#000;}  /* unvisited link  */
-a:visited {color:#000;}  /* visited link    */
-a:hover   {color:#000;}  /* mouse over link */
-a:active  {color:#000;}
+/*a:link    {color:#000;} */ /* unvisited link  */
+/*a:visited {color:#000;}   visited link    */
+/*a:hover   {color:#000;} */ /* mouse over link */
+/*a:active  {color:#000;}*/
 
 #map {
-	height: 500px;
-	width: 550px;
-	margin-top: 30px;
-	float: left;
-	display: inline-block;
-	vertical-align: top;
-	position: relative;
+/*	height: 500px;
+	width: 550px;*/
+	/*margin-top: 30px;*/
+	/*text-align: center;
+	float: left;*/
+	margin-left: auto;
+	margin-right: auto;
+	/*display: inline-block;*/
+	/*vertical-align: top;*/
+	/*position: relative;*/
 }
 
-#mypie {
-	position: relative;
-	display: inline-block;
-	vertical-align: top;
-	margin-top: 30px;
+#mypie {	
+	margin-left: auto;
+	margin-right: auto;
+	/*position: absolute;*/
+	/*display: inline-block;*/
+	/*text-align: center;*/
+	display: block;
 }
 
 #worldmap {
-	position: absolute;
-	height: 250px;
-	margin-top: 385px;
-	margin-left: 560px;
-	width: 600px;
+	/*position: relative;*/
+	/*height: 250px;*/
+/*	margin-top: 385px;
+	margin-left: 560px;*/
+	/*float: right;*/
+	text-align: center;
+	max-width: 70%; 	
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+
+	/*padding: 1em;*/
 }
 
 #textvenn {
-	position: absolute;
-	margin-top: 475px;
-	margin-left: 560px;
-	width: 600px;
-	text-align: center;
+	display: block;
+	padding: 1em;
+	/*position: absolute;*/
+/*	margin-top: 475px;
+	margin-left: 560px;*/
+	/*max-width: 40%; */
+	/*text-align: center;*/
 }
 
 #nearbycities {
-	position: absolute;
-	margin-top: 510px;
-	margin-left: 560px;
-	width: 600px;
-	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	/*position: absolute;*/
+/*	margin-top: 510px;
+	margin-left: 560px;*/
+	/*max-width: 40%;*/
+	/*float: right;*/
+	/*text-align: center;*/
 }
